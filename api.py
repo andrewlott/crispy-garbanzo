@@ -131,8 +131,8 @@ class PiholeAPI():
 
         headers = dict(sid=self.sid)
         response = self.session.post(url, headers=headers)
-        self._print(response.json())
-        return response.json()
+        # No JSON in response
+        return response.status_code == 200
 
     @reauthenticate_on_401()
     def post_dns_blocking(self, blocking=True, duration=None):
