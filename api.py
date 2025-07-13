@@ -11,6 +11,7 @@ class PiholeAPI():
     def __init__(self):
         self.sid = None
         self.should_print = False
+        self.session = requests.Session()
 
     def _print(self, s):
         if self.should_print:
@@ -40,9 +41,10 @@ class PiholeAPI():
         ).communicate()
 
         json = dict(password=str(pw, encoding='utf-8'))
-        response = requests.post(
+        response = self.session.post(
             url, json=json
         )
+        self._print(response.json())
         self.sid = response.json()["session"]["sid"]
         return response.json()
 
@@ -52,9 +54,10 @@ class PiholeAPI():
         self._print(f"GET {url}")
 
         headers = dict(sid=self.sid)
-        response = requests.get(
+        response = self.session.get(
             url, headers=headers
         )
+        self._print(response.json())
         return response.json()
 
     @reauthenticate_on_401()
@@ -63,7 +66,88 @@ class PiholeAPI():
         self._print(f"GET {url}")
 
         headers = dict(sid=self.sid)
-        response = requests.get(
+        response = self.session.get(
             url, headers=headers
         )
+        self._print(response.json())
+        return response.json()
+
+    @reauthenticate_on_401()
+    def get_stats_database_summary(self, start_time, end_time):
+        url = f"{API_BASE_URL}/stats/database/summary"
+        self._print(f"GET {url}")
+
+        headers = dict(sid=self.sid)
+        params = {
+            "from": start_time,
+            "until": end_time
+        }
+        response = self.session.get(
+            url, headers=headers, params=params,
+        )
+        self._print(response.json())
+        return response.json()
+
+    @reauthenticate_on_401()
+    def get_info_system(self):
+        url = f"{API_BASE_URL}/info/system"
+        self._print(f"GET {url}")
+
+        headers = dict(sid=self.sid)
+        response = self.session.get(
+            url, headers=headers
+        )
+        self._print(response.json())
+        return response.json()
+
+    @reauthenticate_on_401()
+    def get_info_sensors(self):
+        url = f"{API_BASE_URL}/info/sensors"
+        self._print(f"GET {url}")
+
+        headers = dict(sid=self.sid)
+        response = self.session.get(
+            url, headers=headers
+        )
+        self._print(response.json())
+        return response.json()
+
+    @reauthenticate_on_401()
+    def get_dns_blocking(self):
+        url = f"{API_BASE_URL}/dns/blocking"
+        self._print(f"GET {url}")
+
+        headers = dict(sid=self.sid)
+        response = self.session.get(
+            url, headers=headers
+        )
+        self._print(response.json())
+        return response.json()
+
+    @reauthenticate_on_401()
+    def post_action_gravity(self):
+        url = f"{API_BASE_URL}/action/gravity"
+        self._print(f"POST {url}")
+
+        headers = dict(sid=self.sid)
+        response = self.session.post(url, headers=headers)
+        self._print(response.json())
+        return response.json()
+
+    @reauthenticate_on_401()
+    def post_dns_blocking(self, blocking=True, duration=None):
+        url = f"{API_BASE_URL}/dns/blocking"
+        self._print(f"POST {url}")
+
+        body = dict(
+            blocking=blocking,
+            timer=duration,
+        )
+        headers = dict(sid=self.sid)
+        response = self.session.post(
+            url,
+            headers=headers,
+            json=body
+        )
+        self._print(response.json())
         return response.json()
