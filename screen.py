@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from PIL import Image
+from datetime import datetime
 
 class Screen(object):
 
@@ -11,6 +12,7 @@ class Screen(object):
         image=None,
         refresh_frequency=None,
         refresh_function=None,
+        idle_timeout=None,
     ):
         self.width = width
         self.height = height
@@ -23,8 +25,10 @@ class Screen(object):
         if self.buttons is None:
             self.buttons = []
 
+        self.last_refresh_time = datetime.now()
         self.refresh_frequency = refresh_frequency
         self.refresh_function = refresh_function
+        self.idle_timeout = idle_timeout
 
     def draw(self, epd):
         #epd.displayPartBaseImage(epd.getbuffer(self.image))
@@ -51,3 +55,5 @@ class Screen(object):
 
         if self.refresh_function is not None:
             self.image = self.refresh_function()
+
+        self.last_refresh_time = datetime.now()

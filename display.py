@@ -28,7 +28,8 @@ gt.GT_Init()
 epd.Clear(0xFF)  # Clear the display to white
 
 active_screen = None
-last_refresh_time = datetime.now()
+now = datetime.now()
+screen_show_time = now
 
 def pthread_irq() :
     print("pthread running")
@@ -46,7 +47,6 @@ t.start()
 
 def wait_for_button_press():
     global active_screen
-    global last_refresh_time
     print("Waiting for button press...")
     while True:
         if active_screen is None:
@@ -55,11 +55,18 @@ def wait_for_button_press():
         now = datetime.now()
         if (
                 active_screen.refresh_frequency is not None
-                and now - last_refresh_time >= active_screen.refresh_frequency
+                and now - active_screen.last_refresh_time >= active_screen.refresh_frequency
         ):
             active_screen.refresh()
             active_screen.draw(epd)
-            last_refresh_time = now
+            continue
+
+        if (
+                active_screen.idle_timeout is not None
+                and now - screen_show_time >= active_screen.idle_timeout
+        ):
+            show_screen(screens[0])
+            continue
 
         gt.GT_Scan(GT_Dev, GT_Old)
         if(not GT_Dev.TouchpointFlag):
@@ -193,8 +200,11 @@ def screen3():
 
 def show_screen(screen):
     global active_screen
+    global screen_show_time
+
     print(f"showing screen {screen}")
     active_screen = screen
+    screen_show_time = datetime.now()
     screen.draw(epd)
 
 screens = [
