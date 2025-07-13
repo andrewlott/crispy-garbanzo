@@ -22,7 +22,14 @@ class PiholeAPI():
             @wraps(func)
             def wrapper(self, *args, **kwargs):
                 json = func(self, *args, **kwargs)
-                if "error" in json and json["error"]["key"] == "unauthorized":
+                if (
+                    json is False
+                    or (
+                        json not in [True, False]
+                        and "error" in json
+                        and json["error"]["key"] == "unauthorized"
+                    )
+                ):
                     self.authenticate()
                     json = func(self, *args, **kwargs)
 
