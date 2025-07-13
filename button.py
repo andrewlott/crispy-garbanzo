@@ -51,7 +51,7 @@ class Button(object):
             try:
                 font = ImageFont.truetype(
                     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-                    36,
+                    16,
                 )
             except:
                 font = ImageFont.load_default()

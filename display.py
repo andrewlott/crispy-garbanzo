@@ -14,7 +14,13 @@ import threading
 import time
 from button import Button
 from screen import Screen
-from data import get_stats_summary
+from data import (
+    get_stats_summary,
+    get_daily_stats_summary,
+    get_status,
+    disable_for_duration,
+    update_gravity,
+)
 
 WIDTH, HEIGHT = 250, 122
 flag_t = 1
@@ -129,18 +135,39 @@ def pihole_image():
 def data_image(d, title):
     img = Image.new('1', (WIDTH, HEIGHT), 255)
     draw = ImageDraw.Draw(img)
-    font_large = ImageFont.truetype("DejaVuSans-Bold.ttf", 16)
+    font_large = ImageFont.truetype("DejaVuSans.ttf", 16)
     font_medium = ImageFont.truetype("DejaVuSans.ttf", 12)
     font_small = ImageFont.truetype("DejaVuSans.ttf", 10)
 
-    offset = 30
-    y = 20
     draw.text((5, 0), title, font=font_medium, fill=0)
     draw.line((0, 18, WIDTH, 18), fill=0)
 
+    if len(d.keys()) == 0:
+        return img
+
+    offset = 20
+    y = HEIGHT / len(d.keys())
+    x = 5
+    longest_key_len = len(
+        sorted(d.keys(), key=lambda s: len(s))[-1]
+    )
     for key, value in d.items():
-        draw.text((5, y), str(" ".join(key.split("_")).title()), font=font_small, fill=0)
-        draw.text((150, y), str(value), font=font_large, fill=0)
+        row_name = str(" ".join(key.split("_")).title())
+        row_value = value
+        font_pixels = 10
+
+        draw.text(
+            (x, y),
+            f"{row_name}:",
+            font=font_large,
+            fill=0
+        )
+        draw.text(
+            (x + (longest_key_len * font_pixels), y),
+            row_value,
+            font=font_large,
+            fill=0
+        )
         y += offset
 
     return img
@@ -163,24 +190,49 @@ def screen1():
 
 def screen2():
     button1 = Button(
-        text="😪",
-        action=lambda: show_screen(screens[2]),
+        text="Daily Stats",
+        action=lambda: show_screen(screens[2]), # Daily Stats Screen
         button_width=120,
         button_height=51,
         button_x=5,
         button_y=5,
     )
+    button2 = Button(
+        text="Status",
+        action=lambda: show_screen(screens[3]), # Status
+        button_width=120,
+        button_height=51,
+        button_x=WIDTH - 5 - 120,
+        button_y=5,
+    )
+    button3 = Button(
+        text="Disable Blocking",
+        action=lambda: show_screen(screens[4]), # Disable Blocking
+        button_width=120,
+        button_height=51,
+        button_x=5,
+        button_y=60,
+    )
+    button4 = Button(
+        text="Update Gravity",
+        action=lambda: update_gravity(),
+        button_width=120,
+        button_height=51,
+        button_x=WIDTH - 5 - 120,
+        button_y=60,
+    )
     screen = Screen(
         width=WIDTH,
         height=HEIGHT,
-        buttons=[button1],
+        buttons=[button1, button2, button3, button4],
         image=pihole_image(),
+        idle_timeout=timedelta(seconds=60),
     )
     return screen
 
-def screen3():
-    title = "Pihole Stats Summary"
-    d = get_stats_summary()
+def daily_stats_screen():
+    title = "Pihole Daily Stats Summary"
+    d = get_daily_stats_summary()
     button0 = Button(
         action=lambda: show_screen(screens[1]),
         image=data_image(d, title),
@@ -188,13 +240,82 @@ def screen3():
         button_height=HEIGHT,
         button_x=0,
         button_y=0,
-        refresh_function=lambda: data_image(get_stats_summary(), title)
+        refresh_function=lambda: data_image(get_daily_stats_summary(), title)
     )
     screen = Screen(
         width=WIDTH,
         height=HEIGHT,
         buttons=[button0],
-        refresh_frequency=timedelta(seconds=5),
+        refresh_frequency=timedelta(seconds=15),
+        idle_timeout=timedelta(seconds=60),
+    )
+    return screen
+
+def status_screen():
+    title = "Status"
+    d = get_status()
+    button0 = Button(
+        action=lambda: show_screen(screens[1]),
+        image=data_image(d, title),
+        button_width=WIDTH,
+        button_height=HEIGHT,
+        button_x=0,
+        button_y=0,
+        refresh_function=lambda: data_image(get_status(), title)
+    )
+    screen = Screen(
+        width=WIDTH,
+        height=HEIGHT,
+        buttons=[button0],
+        refresh_frequency=timedelta(seconds=15),
+        idle_timeout=timedelta(seconds=60),
+    )
+    return screen
+
+def disable_screen():
+    title = "Disable Blocking"
+
+    def disable_for(duration=None):
+        disable_for_duration(duration)
+        show_screen(screens[1]) # Main menu
+
+    button1 = Button(
+        text="30 seconds",
+        action=lambda: disable_for(timedelta(seconds=10)),
+        button_width=120,
+        button_height=51,
+        button_x=5,
+        button_y=5,
+    )
+    button2 = Button(
+        text="5 minutes",
+        action=lambda: disable_for(timedelta(minutes=5)),
+        button_width=120,
+        button_height=51,
+        button_x=WIDTH - 5 - 120,
+        button_y=5,
+    )
+    button3 = Button(
+        text="Indefinitely",
+        action=lambda: disable_for(None),
+        button_width=120,
+        button_height=51,
+        button_x=5,
+        button_y=60,
+    )
+    button4 = Button(
+        text="Back",
+        action=lambda: show_screen(screens[1]), # Main menu
+        button_width=120,
+        button_height=51,
+        button_x=WIDTH - 5 - 120,
+        button_y=60,
+    )
+    screen = Screen(
+        width=WIDTH,
+        height=HEIGHT,
+        buttons=[button1, button2, button3, button4],
+        image=data_image({}, title)
     )
     return screen
 
@@ -210,7 +331,9 @@ def show_screen(screen):
 screens = [
     screen1(),
     screen2(),
-    screen3(),
+    daily_stats_screen(),
+    status_screen(),
+    disable_screen(),
 ]
 if __name__ == '__main__':
     # Register to run when script exits
