@@ -13,6 +13,7 @@ import threading
 import time
 from button import Button
 from screen import Screen
+from data import get_stats_summary
 
 WIDTH, HEIGHT = 250, 122
 flag_t = 1
@@ -104,6 +105,25 @@ def pihole_image():
     image.paste(logo, (pos_x, pos_y))
     return image
 
+def data_image(d, title):
+    img = Image.new('1', (WIDTH, HEIGHT), 255)
+    draw = ImageDraw.Draw(img)
+    font_large = ImageFont.truetype("DejaVuSans-Bold.ttf", 16)
+    font_medium = ImageFont.truetype("DejaVuSans.ttf", 12)
+    font_small = ImageFont.truetype("DejaVuSans.ttf", 10)
+
+    offset = 30
+    y = 20
+    draw.text((5, 0), title, font=font_medium, fill=0)
+    draw.line((0, 18, WIDTH, 18), fill=0)
+
+    for key, value in d.items():
+        draw.text((5, y), str(" ".join(key.split("_")).title()), font=font_small, fill=0)
+        draw.text((150, y), str(value), font=font_large, fill=0)
+        y += offset
+
+    return img
+
 def screen1():
     button0 = Button(
         action=lambda: show_screen(screens[1]),
@@ -123,7 +143,7 @@ def screen1():
 def screen2():
     button1 = Button(
         text="😪",
-        action=lambda: show_screen(screens[0]),
+        action=lambda: show_screen(screens[2]),
         button_width=120,
         button_height=51,
         button_x=5,
@@ -137,6 +157,24 @@ def screen2():
     )
     return screen
 
+def screen3():
+    title = "Pihole Stats Summary"
+    d = get_stats_summary()
+    button0 = Button(
+        action=lambda: show_screen(screens[1]),
+        image=data_image(d, title),
+        button_width=WIDTH,
+        button_height=HEIGHT,
+        button_x=0,
+        button_y=0,
+    )
+    screen = Screen(
+        width=WIDTH,
+        height=HEIGHT,
+        buttons=[button0],
+    )
+    return screen
+
 def show_screen(screen):
     global active_screen
     print(f"showing screen {screen}")
@@ -146,6 +184,7 @@ def show_screen(screen):
 screens = [
     screen1(),
     screen2(),
+    screen3(),
 ]
 if __name__ == '__main__':
     # Register to run when script exits
