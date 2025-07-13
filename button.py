@@ -17,7 +17,9 @@ class Button(object):
         button_y,
         text=None,
         image=None,
+        refresh_function=None,
     ):
+
         self.button_width = button_width
         self.button_height = button_height
         self.button_x = button_x
@@ -26,6 +28,7 @@ class Button(object):
         self.image = image
         self.text = text
         self.action = action
+        self.refresh_function = refresh_function
 
     def draw(self, screen_image):
         draw = ImageDraw.Draw(screen_image)
@@ -68,3 +71,7 @@ class Button(object):
             if self.action is not None:
                 self.action()
 
+
+    def refresh(self):
+        if self.refresh_function is not None:
+            self.image = self.refresh_function()

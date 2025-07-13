@@ -9,6 +9,8 @@ class Screen(object):
         height,
         buttons=None,
         image=None,
+        refresh_frequency=None,
+        refresh_function=None,
     ):
         self.width = width
         self.height = height
@@ -20,6 +22,9 @@ class Screen(object):
         self.buttons = buttons
         if self.buttons is None:
             self.buttons = []
+
+        self.refresh_frequency = refresh_frequency
+        self.refresh_function = refresh_function
 
     def draw(self, epd):
         #epd.displayPartBaseImage(epd.getbuffer(self.image))
@@ -39,3 +44,10 @@ class Screen(object):
     def check_touch(self, x, y):
         for button in self.buttons:
             button.check_touch(x, y)
+
+    def refresh(self):
+        for button in self.buttons:
+            button.refresh()
+
+        if self.refresh_function is not None:
+            self.image = self.refresh_function()

@@ -6,6 +6,7 @@ from PIL import (
     ImageOps
 )
 from TP_lib import epd2in13_V4, gt1151
+from datetime import datetime, timedelta
 import atexit
 import cairosvg
 import os
@@ -27,6 +28,7 @@ gt.GT_Init()
 epd.Clear(0xFF)  # Clear the display to white
 
 active_screen = None
+last_refresh_time = datetime.now()
 
 def pthread_irq() :
     print("pthread running")
@@ -44,8 +46,21 @@ t.start()
 
 def wait_for_button_press():
     global active_screen
+    global last_refresh_time
     print("Waiting for button press...")
     while True:
+        if active_screen is None:
+            continue
+
+        now = datetime.now()
+        if (
+                active_screen.refresh_frequency is not None
+                and now - last_refresh_time >= active_screen.refresh_frequency
+        ):
+            active_screen.refresh()
+            active_screen.draw(epd)
+            last_refresh_time = now
+
         gt.GT_Scan(GT_Dev, GT_Old)
         if(not GT_Dev.TouchpointFlag):
             time.sleep(0.05)
@@ -65,8 +80,7 @@ def wait_for_button_press():
             continue
 
         print(f"Touched at ({x}, {y})")
-        if active_screen is not None:
-            active_screen.check_touch(x, y)
+        active_screen.check_touch(x, y)
         time.sleep(0.1)
 
 def show_pihole_logo():
@@ -167,11 +181,13 @@ def screen3():
         button_height=HEIGHT,
         button_x=0,
         button_y=0,
+        refresh_function=lambda: data_image(get_stats_summary(), title)
     )
     screen = Screen(
         width=WIDTH,
         height=HEIGHT,
         buttons=[button0],
+        refresh_frequency=timedelta(seconds=5),
     )
     return screen
 
