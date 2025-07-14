@@ -71,10 +71,13 @@ def get_status():
 def update_gravity():
     api.post_action_gravity()
 
-def disable_for_duration(duration=None):
-    api.post_dns_blocking(blocking=False, timer=duration.seconds)
+def disable_blocking_for_duration(duration=None):
+    api.post_dns_blocking(
+        blocking=False,
+        duration=duration.seconds if duration is not None else None,
+    )
 
-def enable():
+def enable_blocking():
     api.post_dns_blocking(blocking=True)
 
 def format_last_update_time(td):

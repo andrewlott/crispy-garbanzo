@@ -18,7 +18,8 @@ from data import (
     get_stats_summary,
     get_daily_stats_summary,
     get_status,
-    disable_for_duration,
+    enable_blocking,
+    disable_blocking_for_duration,
     update_gravity,
 )
 
@@ -276,12 +277,12 @@ def disable_screen():
     title = "Disable Blocking"
 
     def disable_for(duration=None):
-        disable_for_duration(duration)
+        disable_blocking_for_duration(duration)
         show_screen(screens[1]) # Main menu
 
     button1 = Button(
         text="30 seconds",
-        action=lambda: disable_for(timedelta(seconds=10)),
+        action=lambda: disable_for(timedelta(seconds=30)),
         button_width=120,
         button_height=51,
         button_x=5,
