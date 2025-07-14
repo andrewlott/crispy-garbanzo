@@ -18,6 +18,7 @@ class Button(object):
         text=None,
         image=None,
         refresh_function=None,
+        hidden=False,
     ):
 
         self.button_width = button_width
@@ -29,8 +30,12 @@ class Button(object):
         self.text = text
         self.action = action
         self.refresh_function = refresh_function
+        self.hidden = hidden
 
     def draw(self, screen_image):
+        if self.hidden:
+            return
+
         draw = ImageDraw.Draw(screen_image)
 
         # Draw button rectangle
@@ -62,6 +67,9 @@ class Button(object):
             draw.text((text_x, text_y), self.text, font=font, fill=0)
 
     def check_touch(self, touch_x, touch_y):
+        if self.hidden:
+            return
+
         print("Checking")
         if (
             self.button_x <= touch_x <= self.button_x + self.button_width
@@ -73,5 +81,8 @@ class Button(object):
 
 
     def refresh(self):
+        if self.hidden:
+            return
+
         if self.refresh_function is not None:
             self.image = self.refresh_function()
