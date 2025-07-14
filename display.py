@@ -54,6 +54,9 @@ t.start()
 
 def wait_for_button_press():
     global active_screen
+
+    last_x = None
+    last_y = None
     print("Waiting for button press...")
     while True:
         if active_screen is None:
@@ -89,12 +92,14 @@ def wait_for_button_press():
             time.sleep(0.05)
             continue
         # Optional: avoid duplicate detection
-        if GT_Dev.X[0] == y and GT_Dev.Y[0] == WIDTH - x and GT_Dev.S == GT_Old.S:
+        if GT_Dev.X[0] == last_y and GT_Dev.Y[0] == WIDTH - last_x:
             time.sleep(0.05)
             continue
 
         print(f"Touched at ({x}, {y})")
         active_screen.check_touch(x, y)
+        last_x = x
+        last_y = y
         time.sleep(0.1)
 
 def show_pihole_logo():
