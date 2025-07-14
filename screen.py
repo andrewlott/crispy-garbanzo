@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from PIL import Image
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class Screen(object):
 
@@ -25,7 +25,13 @@ class Screen(object):
         if self.buttons is None:
             self.buttons = []
 
-        self.last_refresh_time = datetime.now()
+        self.last_refresh_time = (
+            datetime.now() - (
+                refresh_frequency
+                if refresh_frequency is not None
+                else timedelta(seconds=0)
+            ) - timedelta(days=1)
+        )
         self.refresh_frequency = refresh_frequency
         self.refresh_function = refresh_function
         self.idle_timeout = idle_timeout
