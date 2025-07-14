@@ -36,6 +36,15 @@ class Screen(object):
         self.refresh_function = refresh_function
         self.idle_timeout = idle_timeout
 
+    def reset_refresh_time(self):
+        self.last_refresh_time = (
+            datetime.now() - (
+                self.refresh_frequency
+                if self.refresh_frequency is not None
+                else timedelta(seconds=0)
+            ) - timedelta(days=1)
+        )
+
     def draw(self, epd):
         #epd.displayPartBaseImage(epd.getbuffer(self.image))
 

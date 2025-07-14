@@ -239,7 +239,6 @@ def screen2():
 
     def refresh():
         status = get_status()
-        print(status["active"].lower())
         if "enabled" in status["active"].lower():
             button3.hidden = False
             button5.hidden = True
@@ -357,6 +356,7 @@ def show_screen(screen):
     print(f"showing screen {screen}")
     active_screen = screen
     screen_show_time = datetime.now()
+    screen.reset_refresh_time()
     screen.draw(epd)
 
 screens = [
