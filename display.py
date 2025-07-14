@@ -207,7 +207,7 @@ def screen2():
         button_y=5,
     )
     button3 = Button(
-        text="Disable Blocking",
+        text="Disable\nBlocking",
         action=lambda: show_screen(screens[4]), # Disable Blocking
         button_width=120,
         button_height=51,
@@ -215,19 +215,44 @@ def screen2():
         button_y=60,
     )
     button4 = Button(
-        text="Update Gravity",
+        text="Update\nGravity",
         action=lambda: update_gravity(),
         button_width=120,
         button_height=51,
         button_x=WIDTH - 5 - 120,
         button_y=60,
     )
+    button5 = Button(
+        text="Enable\nBlocking",
+        action=lambda: enable_blocking(),
+        button_width=120,
+        button_height=51,
+        button_x=5,
+        button_y=60,
+        hidden=True,
+    )
+
+    def refresh():
+        status = get_status()
+        print(status["active"].lower())
+        if "enabled" in status["active"].lower():
+            button3.hidden = False
+            button5.hidden = True
+        else:
+            button5.hidden = False
+            button3.hidden = True
+
+        return pihole_image()
+
     screen = Screen(
         width=WIDTH,
         height=HEIGHT,
-        buttons=[button1, button2, button3, button4],
+        buttons=[button1, button2, button3, button4, button5],
         image=pihole_image(),
         idle_timeout=timedelta(seconds=60),
+        refresh_function=refresh,
+        refresh_frequency=timedelta(seconds=15),
+
     )
     return screen
 
