@@ -51,6 +51,7 @@ t = threading.Thread(target = pthread_irq)
 t.setDaemon(True)
 t.start()
 
+sleep_time = 0.1 # seconds
 
 def wait_for_button_press():
     global active_screen
@@ -60,6 +61,7 @@ def wait_for_button_press():
     print("Waiting for button press...")
     while True:
         if active_screen is None:
+            time.sleep(sleep_time)
             continue
 
         now = datetime.now()
@@ -69,6 +71,7 @@ def wait_for_button_press():
         ):
             active_screen.refresh()
             active_screen.draw(epd)
+            time.sleep(sleep_time)
             continue
 
         if (
@@ -76,11 +79,12 @@ def wait_for_button_press():
                 and now - screen_show_time >= active_screen.idle_timeout
         ):
             show_screen(screens[0])
+            time.sleep(sleep_time)
             continue
 
         gt.GT_Scan(GT_Dev, GT_Old)
         if(not GT_Dev.TouchpointFlag):
-            time.sleep(0.05)
+            time.sleep(sleep_time)
             continue  # No touch detected
 
         GT_Dev.TouchpointFlag = 0
@@ -89,18 +93,18 @@ def wait_for_button_press():
 
         if (x == WIDTH or x == 0) and (y == HEIGHT or y == 0):
             # Randomly get tap right at the corners, so ignore
-            time.sleep(0.05)
+            time.sleep(sleep_time)
             continue
         # Optional: avoid duplicate detection
         if GT_Dev.X[0] == last_y and GT_Dev.Y[0] == WIDTH - last_x:
-            time.sleep(0.05)
+            time.sleep(sleep_time)
             continue
 
         print(f"Touched at ({x}, {y})")
         active_screen.check_touch(x, y)
         last_x = x
         last_y = y
-        time.sleep(0.1)
+        time.sleep(sleep_time)
 
 def show_pihole_logo():
     print("Displaying Pi-hole logo...")
