@@ -37,21 +37,22 @@ epd.Clear(0xFF)  # Clear the display to white
 active_screen = None
 now = datetime.now()
 screen_show_time = now
+sleep_time = 0.1 # seconds
 
 def pthread_irq() :
     print("pthread running")
-    while flag_t == 1 :
+    while flag_t == 1:
         if(gt.digital_read(gt.INT) == 0) :
             GT_Dev.Touch = 1
         else :
             GT_Dev.Touch = 0
+        time.sleep(sleep_time)
+
     print("thread:exit")
 
 t = threading.Thread(target = pthread_irq)
 t.setDaemon(True)
 t.start()
-
-sleep_time = 0.1 # seconds
 
 def wait_for_button_press():
     global active_screen
@@ -378,7 +379,13 @@ if __name__ == '__main__':
     #draw_button_screen()
     show_screen(screens[0])
     #screen.draw(epd)
-    wait_for_button_press()
-
-    while True:
-        time.sleep(1)
+    try:
+        wait_for_button_press()
+    except KeyboardInterrupt:
+        print("ctrl + c:")
+        Flag_t = 0
+        epd.sleep()
+        time.sleep(2)
+        t.join()
+        epd.Dev_exit()
+        exit()
