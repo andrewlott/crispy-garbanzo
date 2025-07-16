@@ -203,40 +203,40 @@ def screen2():
     button1 = Button(
         text="Daily Stats",
         action=lambda: show_screen(screens[2]), # Daily Stats Screen
-        button_width=120,
-        button_height=51,
+        button_width=115,
+        button_height=50,
         button_x=5,
         button_y=5,
     )
     button2 = Button(
         text="Status",
         action=lambda: show_screen(screens[3]), # Status
-        button_width=120,
-        button_height=51,
-        button_x=WIDTH - 5 - 120,
+        button_width=115,
+        button_height=50,
+        button_x=WIDTH - 10 - 115,
         button_y=5,
     )
     button3 = Button(
         text="Disable\nBlocking",
         action=lambda: show_screen(screens[4]), # Disable Blocking
-        button_width=120,
-        button_height=51,
+        button_width=115,
+        button_height=50,
         button_x=5,
         button_y=60,
     )
     button4 = Button(
         text="Update\nGravity",
         action=lambda: update_gravity(),
-        button_width=120,
-        button_height=51,
-        button_x=WIDTH - 5 - 120,
+        button_width=115,
+        button_height=50,
+        button_x=WIDTH - 10 - 115,
         button_y=60,
     )
     button5 = Button(
         text="Enable\nBlocking",
         action=lambda: enable_blocking(),
-        button_width=120,
-        button_height=51,
+        button_width=115,
+        button_height=50,
         button_x=5,
         button_y=60,
         hidden=True,
