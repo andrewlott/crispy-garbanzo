@@ -62,7 +62,11 @@ class Screen(object):
 
     def check_touch(self, x, y):
         for button in self.buttons:
-            button.check_touch(x, y)
+            action = button.check_touch(x, y)
+            if action is not None:
+                return action
+
+        return None
 
     def refresh(self):
         for button in self.buttons:

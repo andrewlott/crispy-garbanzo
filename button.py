@@ -68,7 +68,7 @@ class Button(object):
 
     def check_touch(self, touch_x, touch_y):
         if self.hidden:
-            return
+            return None
 
         print("Checking")
         if (
@@ -76,6 +76,7 @@ class Button(object):
             and self.button_y <= touch_y <= self.button_y + self.button_height
         ):
             print("Clicked!")
+            return self.action
             if self.action is not None:
                 self.action()
 

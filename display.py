@@ -42,44 +42,29 @@ sleep_time = 0.1 # seconds
 def pthread_irq() :
     print("pthread running")
     while flag_t == 1:
-        if(gt.digital_read(gt.INT) == 0) :
+        if gt.digital_read(gt.INT) == 0:
             GT_Dev.Touch = 1
-        else :
+        else:
             GT_Dev.Touch = 0
         time.sleep(sleep_time)
 
     print("thread:exit")
 
-t = threading.Thread(target = pthread_irq)
+t = threading.Thread(target=pthread_irq)
 t.setDaemon(True)
 t.start()
 
-def wait_for_button_press():
+touch_actions = []
+
+def check_touch():
     global active_screen
+    global touch_actions
 
     last_x = None
     last_y = None
-    print("Waiting for button press...")
+    print("Checking touch...")
     while True:
         if active_screen is None:
-            time.sleep(sleep_time)
-            continue
-
-        now = datetime.now()
-        if (
-                active_screen.refresh_frequency is not None
-                and now - active_screen.last_refresh_time >= active_screen.refresh_frequency
-        ):
-            active_screen.refresh()
-            active_screen.draw(epd)
-            time.sleep(sleep_time)
-            continue
-
-        if (
-                active_screen.idle_timeout is not None
-                and now - screen_show_time >= active_screen.idle_timeout
-        ):
-            show_screen(screens[0])
             time.sleep(sleep_time)
             continue
 
@@ -102,9 +87,52 @@ def wait_for_button_press():
             continue
 
         print(f"Touched at ({x}, {y})")
-        active_screen.check_touch(x, y)
+        action = active_screen.check_touch(x, y)
+        if action is not None and action not in touch_actions:
+            print(f"Clicked {active_screen.name}")
+            touch_actions.append(action)
         last_x = x
         last_y = y
+        time.sleep(sleep_time)
+
+t2 = threading.Thread(target=check_touch)
+t2.setDaemon(True)
+t2.start()
+
+def render():
+    global active_screen
+    global touch_actions
+    print("Rendering...")
+    while True:
+        if active_screen is None:
+            time.sleep(sleep_time)
+            continue
+
+        if len(touch_actions) > 0:
+            action = touch_actions.pop(0)
+            print(f"Touch Action 0 of {len(touch_actions)}, for {active_screen.name}")
+            action()
+
+        now = datetime.now()
+        if (
+                active_screen.refresh_frequency is not None
+                and now - active_screen.last_refresh_time >= active_screen.refresh_frequency
+        ):
+            print("Refreshing...")
+            active_screen.refresh()
+            active_screen.draw(epd)
+            time.sleep(sleep_time)
+            continue
+
+        if (
+                active_screen.idle_timeout is not None
+                and now - screen_show_time >= active_screen.idle_timeout
+        ):
+            print("Idling...")
+            show_screen(screens[0])
+            time.sleep(sleep_time)
+            continue
+
         time.sleep(sleep_time)
 
 def show_pihole_logo():
@@ -358,7 +386,7 @@ def show_screen(screen):
     global active_screen
     global screen_show_time
 
-    print(f"showing screen {screen}")
+    print(f"showing screen {screen.name}")
     active_screen = screen
     screen_show_time = datetime.now()
     screen.reset_refresh_time()
@@ -380,7 +408,7 @@ if __name__ == '__main__':
     show_screen(screens[0])
     #screen.draw(epd)
     try:
-        wait_for_button_press()
+        render()
     except KeyboardInterrupt:
         print("ctrl + c:")
         Flag_t = 0
