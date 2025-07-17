@@ -41,11 +41,12 @@ class Button(object):
         draw = ImageDraw.Draw(screen_image)
 
         # Draw button rectangle
-        draw.rectangle(
+        draw.rounded_rectangle(
             [
                 (self.button_x, self.button_y),
                 (self.button_x + self.button_width, self.button_y + self.button_height)
             ],
+            radius=7,
             fill=1,
             outline=0,
         )
