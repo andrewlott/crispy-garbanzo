@@ -8,6 +8,7 @@ class Screen(object):
         self,
         width,
         height,
+        name=None,
         buttons=None,
         image=None,
         refresh_frequency=None,
@@ -16,6 +17,7 @@ class Screen(object):
     ):
         self.width = width
         self.height = height
+        self.name = name
 
         self.image = image
         if self.image is None:

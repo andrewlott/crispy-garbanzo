@@ -221,6 +221,7 @@ def screen1():
         button_y=0,
     )
     screen = Screen(
+        name="Idle Screen",
         width=WIDTH,
         height=HEIGHT,
         buttons=[button0],
@@ -282,6 +283,7 @@ def screen2():
         return pihole_image()
 
     screen = Screen(
+        name="Main Screen",
         width=WIDTH,
         height=HEIGHT,
         buttons=[button1, button2, button3, button4, button5],
@@ -306,6 +308,7 @@ def daily_stats_screen():
         refresh_function=lambda: data_image(get_daily_stats_summary(), title)
     )
     screen = Screen(
+        name="Stats Screen",
         width=WIDTH,
         height=HEIGHT,
         buttons=[button0],
@@ -327,6 +330,7 @@ def status_screen():
         refresh_function=lambda: data_image(get_status(), title)
     )
     screen = Screen(
+        name="Status Screen",
         width=WIDTH,
         height=HEIGHT,
         buttons=[button0],
@@ -345,40 +349,41 @@ def disable_screen():
     button1 = Button(
         text="30 seconds",
         action=lambda: disable_for(timedelta(seconds=30)),
-        button_width=120,
-        button_height=51,
+        button_width=115,
+        button_height=50,
         button_x=5,
         button_y=5,
     )
     button2 = Button(
         text="5 minutes",
         action=lambda: disable_for(timedelta(minutes=5)),
-        button_width=120,
-        button_height=51,
-        button_x=WIDTH - 5 - 120,
+        button_width=115,
+        button_height=50,
+        button_x=WIDTH - 10 - 115,
         button_y=5,
     )
     button3 = Button(
         text="Indefinitely",
         action=lambda: disable_for(None),
-        button_width=120,
-        button_height=51,
+        button_width=115,
+        button_height=50,
         button_x=5,
         button_y=60,
     )
     button4 = Button(
         text="Back",
         action=lambda: show_screen(screens[1]), # Main menu
-        button_width=120,
-        button_height=51,
-        button_x=WIDTH - 5 - 120,
+        button_width=115,
+        button_height=50,
+        button_x=WIDTH - 10 - 115,
         button_y=60,
     )
     screen = Screen(
+        name="Disable screen",
         width=WIDTH,
         height=HEIGHT,
         buttons=[button1, button2, button3, button4],
-        image=data_image({}, title)
+        image=pihole_image(), #data_image({}, title)
     )
     return screen
 
