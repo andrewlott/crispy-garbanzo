@@ -261,9 +261,15 @@ def screen2():
         button_x=WIDTH - 10 - 115,
         button_y=60,
     )
+
+    def _enable_blocking():
+        enable_blocking()
+        global active_screen
+        active_screen.reset_refresh_time()
+
     button5 = Button(
         text="Enable\nBlocking",
-        action=lambda: enable_blocking(),
+        action=lambda: _enable_blocking(),
         button_width=115,
         button_height=50,
         button_x=5,
