@@ -19,6 +19,7 @@ class Button(object):
         image=None,
         refresh_function=None,
         hidden=False,
+        show_badge_function=None,
     ):
 
         self.button_width = button_width
@@ -31,6 +32,7 @@ class Button(object):
         self.action = action
         self.refresh_function = refresh_function
         self.hidden = hidden
+        self.show_badge_function = show_badge_function
 
     def draw(self, screen_image):
         if self.hidden:
@@ -65,6 +67,22 @@ class Button(object):
             text_x = self.button_x + (self.button_width - text_width) // 2
             text_y = self.button_y + (self.button_height - text_height) // 2
             draw.text((text_x, text_y), self.text, font=font, fill=0)
+
+        if self.show_badge_function is not None and self.show_badge_function():
+            try:
+                font = ImageFont.truetype(
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                    24,
+                )
+            except:
+                font = ImageFont.load_default()
+
+            badge_text = "⚫️️"
+            text_width, text_height = draw.textsize(badge_text, font=font)
+            text_x = self.button_x + (self.button_width - text_width)
+            text_y = self.button_y
+            draw.text((text_x, text_y), badge_text, font=font, fill=0)
+
 
     def check_touch(self, touch_x, touch_y):
         if self.hidden:
