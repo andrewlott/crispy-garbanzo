@@ -3,6 +3,7 @@ from PIL import (
     Image,
     ImageDraw,
     ImageFont,
+    ImageOps
 )
 import os
 
@@ -33,6 +34,7 @@ class Button(object):
         self.refresh_function = refresh_function
         self.hidden = hidden
         self.show_badge_function = show_badge_function
+        self.selected = False
 
     def draw(self, screen_image):
         if self.hidden:
@@ -47,7 +49,7 @@ class Button(object):
                 (self.button_x + self.button_width, self.button_y + self.button_height)
             ],
             radius=7,
-            fill=1,
+            fill=1 if not self.selected else 0,
             outline=0,
         )
 
@@ -67,7 +69,7 @@ class Button(object):
             text_width, text_height = draw.textsize(self.text, font=font)
             text_x = self.button_x + (self.button_width - text_width) // 2
             text_y = self.button_y + (self.button_height - text_height) // 2
-            draw.text((text_x, text_y), self.text, font=font, fill=0)
+            draw.text((text_x, text_y), self.text, font=font, fill=0 if not self.selected else 1)
 
         if self.show_badge_function is not None and self.show_badge_function():
             try:
@@ -82,8 +84,10 @@ class Button(object):
             text_width, text_height = draw.textsize(badge_text, font=font)
             text_x = self.button_x + (self.button_width - text_width)
             text_y = self.button_y
-            draw.text((text_x, text_y), badge_text, font=font, fill=0)
+            draw.text((text_x, text_y), badge_text, font=font, fill=0 if not self.selected else 1)
 
+        if self.selected:
+            self.selected = False
 
     def check_touch(self, touch_x, touch_y):
         if self.hidden:
@@ -95,9 +99,8 @@ class Button(object):
             and self.button_y <= touch_y <= self.button_y + self.button_height
         ):
             print("Clicked!")
+            self.selected = True
             return self.action
-            if self.action is not None:
-                self.action()
 
 
     def refresh(self):

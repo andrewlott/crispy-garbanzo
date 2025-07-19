@@ -55,9 +55,6 @@ class Screen(object):
 
         # Display the image
         epd.displayPartial(epd.getbuffer(self.image))
-        print("Image size:", self.image.size)
-        print("Display size:", (epd.height, epd.width))  # some drivers swap w/h
-
         # Put the display to sleep to save power
         epd.sleep()
 

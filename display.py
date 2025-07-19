@@ -37,7 +37,7 @@ epd.Clear(0xFF)  # Clear the display to white
 active_screen = None
 now = datetime.now()
 screen_show_time = now
-sleep_time = 0.1 # seconds
+sleep_time = 0.05 # seconds
 
 def pthread_irq() :
     print("pthread running")
@@ -104,24 +104,25 @@ def render():
     global touch_actions
     print("Rendering...")
     while True:
+        time.sleep(sleep_time)
         if active_screen is None:
-            time.sleep(sleep_time)
             continue
 
         if len(touch_actions) > 0:
             action = touch_actions.pop(0)
             print(f"Touch Action 0 of {len(touch_actions)}, for {active_screen.name}")
+            active_screen.draw(epd)
             action()
+            continue
 
         now = datetime.now()
         if (
-                active_screen.refresh_frequency is not None
-                and now - active_screen.last_refresh_time >= active_screen.refresh_frequency
+            active_screen.refresh_frequency is not None
+            and now - active_screen.last_refresh_time >= active_screen.refresh_frequency
         ):
             print("Refreshing...")
             active_screen.refresh()
             active_screen.draw(epd)
-            time.sleep(sleep_time)
             continue
 
         if (
@@ -130,10 +131,8 @@ def render():
         ):
             print("Idling...")
             show_screen(screens[0])
-            time.sleep(sleep_time)
             continue
 
-        time.sleep(sleep_time)
 
 def show_pihole_logo():
     print("Displaying Pi-hole logo...")
