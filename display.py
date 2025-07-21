@@ -111,7 +111,8 @@ def render():
         if len(touch_actions) > 0:
             action = touch_actions.pop(0)
             print(f"Touch Action 0 of {len(touch_actions)}, for {active_screen.name}")
-            active_screen.draw(epd)
+            if len(active_screen.buttons) > 1:
+                active_screen.draw(epd)
             action()
             continue
 
