@@ -248,58 +248,29 @@ def main_menu_screen():
         button_y=5,
     )
     button3 = Button(
-        text="Disable\nBlocking",
-        action=lambda: show_screen(screens[4]), # Disable Blocking
+        text="Updates\nSummary",
+        action=lambda: show_screen(screens[6]), # Versions screen
         button_width=115,
         button_height=50,
         button_x=5,
         button_y=60,
     )
     button4 = Button(
-        text="Updates",
-        action=lambda: show_screen(screens[5]), # Updates
+        text="Actions ...",
+        action=lambda: show_screen(screens[5]), # Actions screen
         button_width=115,
         button_height=50,
         button_x=WIDTH - 10 - 115,
         button_y=60,
     )
 
-    def _enable_blocking():
-        enable_blocking()
-        global active_screen
-        active_screen.reset_refresh_time()
-
-    button5 = Button(
-        text="Enable\nBlocking",
-        action=lambda: _enable_blocking(),
-        button_width=115,
-        button_height=50,
-        button_x=5,
-        button_y=60,
-        hidden=True,
-    )
-
-    def refresh():
-        status = get_status()
-        if "enabled" in status["active"].lower():
-            button3.hidden = False
-            button5.hidden = True
-        else:
-            button5.hidden = False
-            button3.hidden = True
-
-        return pihole_image()
-
     screen = Screen(
         name="Main Screen",
         width=WIDTH,
         height=HEIGHT,
-        buttons=[button1, button2, button3, button4, button5],
+        buttons=[button1, button2, button3, button4],
         image=pihole_image(),
         idle_timeout=timedelta(seconds=60),
-        refresh_function=refresh,
-        refresh_frequency=timedelta(seconds=15),
-
     )
     return screen
 
@@ -380,7 +351,7 @@ def disable_screen():
     )
     button4 = Button(
         text="Back",
-        action=lambda: show_screen(screens[1]), # Main menu
+        action=lambda: show_screen(screens[5]), # Actions screen
         button_width=115,
         button_height=50,
         button_x=WIDTH - 10 - 115,
@@ -395,8 +366,8 @@ def disable_screen():
     )
     return screen
 
-def updates_screen():
-    title = "Updates"
+def actions_screen():
+    title = "Actions"
 
     def _update_gravity():
         update_gravity()
@@ -406,9 +377,13 @@ def updates_screen():
         update_version()
         show_screen(screens[1]) # Main menu
 
+    def _enable_blocking():
+        enable_blocking()
+        show_screen(screens[1]) # Main menu
+
     button1 = Button(
-        text="Versions\nSummary",
-        action=lambda: show_screen(screens[6]), # Versions screen
+        text="Disable\nBlocking ...",
+        action=lambda: show_screen(screens[4]), # Disable screen
         button_width=115,
         button_height=50,
         button_x=5,
@@ -438,20 +413,45 @@ def updates_screen():
         button_x=WIDTH - 10 - 115,
         button_y=60,
     )
+    button5 = Button(
+        text="Enable\nBlocking",
+        action=lambda: _enable_blocking(),
+        button_width=115,
+        button_height=50,
+        button_x=button1.button_x,
+        button_y=button1.button_y,
+        hidden=True,
+    )
+
+    def refresh():
+        status = get_status()
+        if "enabled" in status["active"].lower():
+            button1.hidden = False
+            button5.hidden = True
+        else:
+            button5.hidden = False
+            button1.hidden = True
+
+        return pihole_image()
+
+    refresh()
     screen = Screen(
-        name="Updates screen",
+        name="Actions screen",
         width=WIDTH,
         height=HEIGHT,
-        buttons=[button1, button2, button3, button4],
+        buttons=[button1, button2, button3, button4, button5],
         image=pihole_image(), #data_image({}, title)
+        idle_timeout=timedelta(seconds=60),
+        refresh_function=refresh,
+        refresh_frequency=timedelta(seconds=15),
     )
     return screen
 
 def versions_screen():
-    title = "Versions Summary"
+    title = "Updates Summary"
     d = get_versions_summary()
     button0 = Button(
-        action=lambda: show_screen(screens[5]), # Updates screen
+        action=lambda: show_screen(screens[1]), # Main menu
         image=data_image(d, title),
         button_width=WIDTH,
         button_height=HEIGHT,
@@ -480,13 +480,13 @@ def show_screen(screen):
     screen.draw(epd)
 
 screens = [
-    idle_screen(),
-    main_menu_screen(),
-    daily_stats_screen(),
-    status_screen(),
-    disable_screen(),
-    updates_screen(),
-    versions_screen(),
+    idle_screen(),        # 0
+    main_menu_screen(),   # 1
+    daily_stats_screen(), # 2
+    status_screen(),      # 3
+    disable_screen(),     # 4
+    actions_screen(),     # 5
+    versions_screen(),    # 6
 ]
 if __name__ == '__main__':
     # Register to run when script exits
