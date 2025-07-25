@@ -34,7 +34,6 @@ def get_daily_stats_summary():
         queries_blocked=str(database_json["sum_blocked"]),
         percent_blocked=str(database_json["percent_blocked"]),
         domains_on_list=str(gravity['domains_being_blocked']),
-        gravity_update=format_last_update_time(now - datetime.fromtimestamp(gravity['last_update'])),
     )
 
 def get_status():
@@ -83,6 +82,30 @@ def enable_blocking():
 
 def update_version():
     subprocess.run(["sudo", "pihole", "-up"])
+
+def get_versions_summary():
+    now = datetime.now()
+
+    stats_json = api.get_stats_summary()
+    gravity = stats_json["gravity"]
+
+    version_json = api.get_info_version()
+    version_string = "{} / {}"
+    return {
+        "gravity": format_last_update_time(now - datetime.fromtimestamp(gravity['last_update'])),
+        "core_version": version_string.format(
+            version_json["version"]["core"]["local"]["version"],
+            version_json["version"]["core"]["remote"]["version"],
+        ),
+        "web_version": version_string.format(
+            version_json["version"]["web"]["local"]["version"],
+            version_json["version"]["web"]["remote"]["version"],
+        ),
+        "ftl_version": version_string.format(
+            version_json["version"]["ftl"]["local"]["version"],
+            version_json["version"]["ftl"]["remote"]["version"],
+        ),
+    }
 
 def format_last_update_time(td):
     total_seconds = td.seconds

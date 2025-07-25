@@ -22,6 +22,7 @@ from data import (
     disable_blocking_for_duration,
     update_gravity,
     update_version,
+    get_versions_summary,
 )
 
 WIDTH, HEIGHT = 250, 122
@@ -212,7 +213,7 @@ def data_image(d, title):
 
     return img
 
-def screen1():
+def idle_screen():
     button0 = Button(
         action=lambda: show_screen(screens[1]),
         image=pihole_image(),
@@ -229,7 +230,7 @@ def screen1():
     )
     return screen
 
-def screen2():
+def main_menu_screen():
     button1 = Button(
         text="Daily Stats",
         action=lambda: show_screen(screens[2]), # Daily Stats Screen
@@ -406,22 +407,30 @@ def updates_screen():
         show_screen(screens[1]) # Main menu
 
     button1 = Button(
-        text="Update\nGravity",
-        action=lambda: _update_gravity(),
+        text="Versions\nSummary",
+        action=lambda: show_screen(screens[6]), # Versions screen
         button_width=115,
         button_height=50,
         button_x=5,
         button_y=5,
     )
     button2 = Button(
-        text="Update\nPi-hole",
-        action=lambda: _update_version(),
+        text="Update\nGravity",
+        action=lambda: _update_gravity(),
         button_width=115,
         button_height=50,
         button_x=WIDTH - 10 - 115,
         button_y=5,
     )
     button3 = Button(
+        text="Update\nPi-hole",
+        action=lambda: _update_version(),
+        button_width=115,
+        button_height=50,
+        button_x=5,
+        button_y=60,
+    )
+    button4 = Button(
         text="Back",
         action=lambda: show_screen(screens[1]), # Main menu
         button_width=115,
@@ -433,8 +442,30 @@ def updates_screen():
         name="Updates screen",
         width=WIDTH,
         height=HEIGHT,
-        buttons=[button1, button2, button3],
+        buttons=[button1, button2, button3, button4],
         image=pihole_image(), #data_image({}, title)
+    )
+    return screen
+
+def versions_screen():
+    title = "Versions Summary"
+    d = get_versions_summary()
+    button0 = Button(
+        action=lambda: show_screen(screens[5]), # Updates screen
+        image=data_image(d, title),
+        button_width=WIDTH,
+        button_height=HEIGHT,
+        button_x=0,
+        button_y=0,
+        refresh_function=lambda: data_image(get_versions_summary(), title)
+    )
+    screen = Screen(
+        name="Versions Screen",
+        width=WIDTH,
+        height=HEIGHT,
+        buttons=[button0],
+        refresh_frequency=timedelta(seconds=15),
+        idle_timeout=timedelta(seconds=60),
     )
     return screen
 
@@ -449,12 +480,13 @@ def show_screen(screen):
     screen.draw(epd)
 
 screens = [
-    screen1(),
-    screen2(),
+    idle_screen(),
+    main_menu_screen(),
     daily_stats_screen(),
     status_screen(),
     disable_screen(),
     updates_screen(),
+    versions_screen(),
 ]
 if __name__ == '__main__':
     # Register to run when script exits

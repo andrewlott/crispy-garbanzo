@@ -158,3 +158,15 @@ class PiholeAPI():
         )
         self._print(response.json())
         return response.json()
+
+    @reauthenticate_on_401()
+    def get_info_version(self):
+        url = f"{API_BASE_URL}/info/version"
+        self._print(f"GET {url}")
+
+        headers = dict(sid=self.sid)
+        response = self.session.get(
+            url, headers=headers
+        )
+        self._print(response.json())
+        return response.json()
