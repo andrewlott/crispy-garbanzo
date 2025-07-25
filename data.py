@@ -2,6 +2,7 @@
 
 from api import PiholeAPI
 from datetime import datetime, timedelta
+import subprocess
 
 api = PiholeAPI()
 
@@ -79,6 +80,9 @@ def disable_blocking_for_duration(duration=None):
 
 def enable_blocking():
     api.post_dns_blocking(blocking=True)
+
+def update_version():
+    subprocess.run(["sudo", "pihole", "-up"])
 
 def format_last_update_time(td):
     total_seconds = td.seconds

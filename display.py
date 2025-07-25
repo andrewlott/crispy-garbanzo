@@ -21,6 +21,7 @@ from data import (
     enable_blocking,
     disable_blocking_for_duration,
     update_gravity,
+    update_version,
 )
 
 WIDTH, HEIGHT = 250, 122
@@ -254,8 +255,8 @@ def screen2():
         button_y=60,
     )
     button4 = Button(
-        text="Update\nGravity",
-        action=lambda: update_gravity(),
+        text="Updates",
+        action=lambda: show_screen(screens[5]), # Updates
         button_width=115,
         button_height=50,
         button_x=WIDTH - 10 - 115,
@@ -393,6 +394,50 @@ def disable_screen():
     )
     return screen
 
+def updates_screen():
+    title = "Updates"
+
+    def _update_gravity():
+        update_gravity()
+        show_screen(screens[1]) # Main menu
+
+    def _update_version():
+        update_version()
+        show_screen(screens[1]) # Main menu
+
+    button1 = Button(
+        text="Update\nGravity",
+        action=lambda: _update_gravity(),
+        button_width=115,
+        button_height=50,
+        button_x=5,
+        button_y=5,
+    )
+    button2 = Button(
+        text="Update\nPi-hole",
+        action=lambda: _update_version(),
+        button_width=115,
+        button_height=50,
+        button_x=WIDTH - 10 - 115,
+        button_y=5,
+    )
+    button3 = Button(
+        text="Back",
+        action=lambda: show_screen(screens[1]), # Main menu
+        button_width=115,
+        button_height=50,
+        button_x=WIDTH - 10 - 115,
+        button_y=60,
+    )
+    screen = Screen(
+        name="Updates screen",
+        width=WIDTH,
+        height=HEIGHT,
+        buttons=[button1, button2, button3],
+        image=pihole_image(), #data_image({}, title)
+    )
+    return screen
+
 def show_screen(screen):
     global active_screen
     global screen_show_time
@@ -409,6 +454,7 @@ screens = [
     daily_stats_screen(),
     status_screen(),
     disable_screen(),
+    updates_screen(),
 ]
 if __name__ == '__main__':
     # Register to run when script exits
