@@ -248,7 +248,7 @@ def main_menu_screen():
         button_y=5,
     )
     button3 = Button(
-        text="Updates\nSummary",
+        text="Versions",
         action=lambda: show_screen(screens[6]), # Versions screen
         button_width=115,
         button_height=50,
